@@ -28,7 +28,7 @@ def train_model():
     from sklearn.model_selection import train_test_split
     X_train, X_test, y_train, y_test = train_test_split(X ,y, test_size=x)
 
-    modelos = ['CatBoost', 'Random Forest']
+    modelos = ['CatBoost', 'Random Forest','SVC']
 
     column_names = ["Model","Accuracy","Precision","Recall","F1","Classifier"]
     results = pd.DataFrame(columns = column_names)
@@ -44,6 +44,10 @@ def train_model():
         elif i == 1:
             from sklearn.ensemble import RandomForestClassifier
             classifier = RandomForestClassifier(n_estimators=100)
+
+        if i == 2:
+            from sklearn.svm import SVC
+            classifier = SVC(kernel='linear', gamma=1e-5, C=10, random_state=7)
 
         start_time = time.time()
         classifier.fit(X_train,y_train)
@@ -70,15 +74,27 @@ def train_model():
 
 data = get_data()
 html_temp = """
-  <div style="background-color:blue;padding:10px">
-  <h2 style="color:white;text-align:center;"> Early Stage Diabetes Risk Prediction app </h2>
+  <div style="color:black;text-align:center;font-family:verdana;font-size:300%;"> Early Stage Diabetes <br> Risk Prediction application </div>
   </div>
 
   """
 st.markdown(html_temp, unsafe_allow_html=True)
 
-image = Image.open('Logo.jpeg')
-st.sidebar.image(image, width=100, height=50)
+page_bg_img = '''
+<style>
+body {
+background-image: url("https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg?size=626&ext=jpg&ga=GA1.2.2009260354.1641772800");
+background-size: cover;
+}
+</style>
+'''
+
+st.sidebar.markdown(page_bg_img, unsafe_allow_html=True)
+
+image = Image.open('logo2.png')
+st.sidebar.image(image)
+
+uploaded_file = st.sidebar.file_uploader("Upload training csv file")
 
 st.sidebar.subheader("Input Attributes")
 In1 =  st.sidebar.number_input("Age", min_value=20,max_value=65,step=1)
@@ -106,6 +122,18 @@ test_size = st.sidebar.slider  (label = 'Test size (%):',
 
 results = train_model()
 
+m = st.markdown("""
+<style>
+div.stButton > button:first-child {
+    background-color: #0099ff;
+    color:#ffffff;
+}
+div.stButton > button:hover {
+    background-color: black;
+    color:blue;
+    }
+</style>""", unsafe_allow_html=True)
+
 btn_predict = st.sidebar.button("predict")
 
 
@@ -118,7 +146,7 @@ if btn_predict:
                     "visual blurring","Itching","Irritability",\
                     "delayed healing","partial paresis","muscle stiffness","Alopecia","Obesity"]
     df = pd.DataFrame(values, column_names)
-    st.write(df)
+    st.write(df.T)
     st.write("**Result** :")
     if df[0][1] == 'Man':
         df[0][1] = 1
